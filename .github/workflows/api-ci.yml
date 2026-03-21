@@ -1,0 +1,36 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "api-backend/**"
+  pull_request:
+    paths:
+      - "api-backend/**"
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: api-backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build || echo "No build step for backend"
+
