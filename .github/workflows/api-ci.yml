@@ -1,3 +1,13 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "webapp-backend/**"
+  pull_request:
+    paths:
+      - "webapp-backend/**"
+
 jobs:
   build:
     runs-on: ubuntu-latest
