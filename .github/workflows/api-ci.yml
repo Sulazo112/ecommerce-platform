@@ -11,39 +11,40 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: api-backend
 
     steps:
-  - name: Checkout code
-    uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  - name: Install dependencies
-    run: npm install
+      - name: Install dependencies
+        run: npm install
 
-  - name: Fix Jest permissions
-    run: chmod +x ./node_modules/.bin/jest
+      - name: Fix Jest permissions
+        run: chmod +x ./node_modules/.bin/jest
 
-  - name: Run tests
-    run: npm test
+      - name: Run tests
+        run: npm test
 
       - name: Build application
-        run: npm run build || echo "No build step for backend"
+        run: npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push backend image
         run: |
-          docker build -t ecommerce-backend .
-          docker tag ecommerce-backend:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-backend:latest
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-backend:latest
+          docker build -t ${{ secrets.ECR_REPO }} .
+          docker tag ${{ secrets.ECR_REPO }}:latest ${{ secrets.ECR_URI }}:latest
+          docker push ${{ secrets.ECR_URI }}:latest
 
