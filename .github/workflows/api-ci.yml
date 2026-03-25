@@ -3,10 +3,11 @@
 name: Backend CI
 
 on:
-
   push:
-
-    Paths:
+    paths:
+      - "api-backend/**"
+  pull_request:
+    paths:
       - "api-backend/**"
 
 jobs:
@@ -41,11 +42,8 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push backend image
-
         run: |
-
           docker build -t ${{ secrets.ECR_REPO }} .
-
           docker tag ${{ secrets.ECR_REPO }}:latest ${{ secrets.ECR_URI }}:latest
-
           docker push ${{ secrets.ECR_URI }}:latest
+
