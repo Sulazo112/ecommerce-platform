@@ -1,13 +1,12 @@
 # force reload
 
- name: Backend CI
+name: Backend CI
 
 on:
+
   push:
-    paths:
-      - "api-backend/**"
-  pull_request:
-    paths:
+
+    Paths:
       - "api-backend/**"
 
 jobs:
