@@ -6,9 +6,6 @@ on:
   push:
     paths:
       - "api-backend/**"
-  pull_request:
-    paths:
-      - "api-backend/**"
 
 jobs:
   build:
