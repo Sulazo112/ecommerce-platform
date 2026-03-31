@@ -42,11 +42,11 @@ jobs:
         run: echo "Reloading workflow"
 
       - name: Build, tag, and push backend image
-  env:
-    ECR_REPO: ${{ secrets.ECR_REPO }}
-    ECR_URI: ${{ secrets.ECR_URI }}
-  run: |
-    docker build -t "$ECR_REPO" .
-    docker tag "$ECR_REPO:latest" "$ECR_URI:latest"
-    docker push "$ECR_URI:latest"
+        env:
+          ECR_REPO: ${{ secrets.ECR_REPO }}
+          ECR_URI: ${{ secrets.ECR_URI }}
+        run: |
+          docker build -t "$ECR_REPO" .
+          docker tag "$ECR_REPO:latest" "$ECR_URI:latest"
+          docker push "$ECR_URI:latest"
 
