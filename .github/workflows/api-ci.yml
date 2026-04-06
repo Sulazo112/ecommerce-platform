@@ -1,45 +1,27 @@
-# force reload again
-
-name: Backend CI
+name: Backend CI/CD
 
 on:
   push:
-    paths:
-      - "api-backend/**"
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: api-backend
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Fix Jest permissions
-        run: chmod +x ./node_modules/.bin/jest
-
-      - name: Run tests
-        run: npm test
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Dummy reload step
-        run: echo "Reloading workflow"
 
       - name: Build, tag, and push backend image
         env:
@@ -49,4 +31,20 @@ jobs:
           docker build -t "$ECR_REPO" .
           docker tag "$ECR_REPO:latest" "$ECR_URI:latest"
           docker push "$ECR_URI:latest"
+
+      - name: Render ECS task definition
+        id: render-task
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: backend-task.json
+          container-name: backend
+          image: ${{ secrets.ECR_URI }}:latest
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-task.outputs.task-definition }}
+          service: backend-service
+          cluster: backend-cluster
+          wait-for-service-stability: true
 
