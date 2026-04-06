@@ -28,6 +28,7 @@ jobs:
           ECR_REPO: ${{ secrets.ECR_REPO }}
           ECR_URI: ${{ secrets.ECR_URI }}
         run: |
+          cd api-backend
           docker build -t "$ECR_REPO" .
           docker tag "$ECR_REPO:latest" "$ECR_URI:latest"
           docker push "$ECR_URI:latest"
